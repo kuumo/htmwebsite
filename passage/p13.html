@@ -1,0 +1,28 @@
+<pre>
+二分快速幂
+
+(a^b)%mod
+O(logb)
+
+a^b=
+(b%2==0)
+=a^(b/2*2)
+=(a*a)^b/2x
+
+(b%2==1)
+=a*a^((n-1)/2*2)
+=a*(a*a)^((n-1)/2)
+
+#define ll long long
+ll Montgomery(ll a, ll b, ll mod)
+{
+	ll ans=1;
+	a=a%mod;
+	while(b)
+	{
+		if(b&#38;1)	ans=(a*ans)%mod;
+		b=b&#62;&#62;1;
+		a=(a*a)%mod;
+	}
+	return ans;
+}</pre>
