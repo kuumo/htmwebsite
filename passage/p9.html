@@ -1,0 +1,72 @@
+<pre>
+Wrath
+http://codeforces.com/contest/892/problem/B
+
+题意：n个人站成一排，每个人可以击杀他前面一连串的人，也可能不能击杀如任何人，并且击杀是同时进行的。
+
+此题与usaco的一道奶牛的时间安排题目是等价题目，求线段覆盖或者空余，采用排序加模拟即可。
+O(nlogn)
+
+起初我以为这是一道链表，后来才发现我写的链表有致命错误。
+
+果然有序化很重要
+
+#include&#60;cstdio&#62;
+#include&#60;algorithm&#62;
+using namespace std;
+#define maxn 1000009
+struct node{
+	int s, e;
+};
+node a[maxn];
+bool cmp(node a, node b)
+{
+	return ((a.s&#60;b.s)||((a.s==b.s)&#38;&#38;(a.e&#60;b.e)));
+}
+int main()
+{
+	int n, cur, i, ps, pe, ans;
+	scanf(&#34;%d&#34;, &#38;n);
+	for(i=1; i&#60;=n; i++)
+	{
+		scanf(&#34;%d&#34;, &#38;cur);
+		if(cur)
+		{
+			if(i-cur&#60;0)
+			{
+				a[i].s=0;
+			}
+			else
+			{
+				a[i].s=i-cur;
+			}
+			a[i].e=i-1;
+		}
+		else
+		{
+			a[i].s=0;
+			a[i].e=0;
+		}
+	}
+	sort(a+1, a+n+1, cmp);
+	ps=0, pe=0, ans=0;			//线段覆盖的惯用模拟变量, prestart, preend 
+	for(i=1; i&#60;=n; i++)
+	{
+		if(a[i].s&#62;pe)
+		{
+			ans+=a[i].s-pe-1;
+			ps=a[i].s;
+			pe=a[i].e;
+		}
+		else
+		{
+			if(a[i].e&#62;pe)
+			{
+				pe=a[i].e;
+			}
+		}
+	}
+	ans+=n-pe;
+	printf(&#34;%d&#34;, ans);
+	return 0;
+}</pre>

@@ -1,0 +1,45 @@
+<pre>
+选课
+<a href="http://oi.nks.edu.cn/showproblem?problem_id=1217">http://oi.nks.edu.cn/showproblem?problem_id=1217</a>
+树形动规
+定义f[x][y]为节点x的树保留y个节点的答案
+f[x][y]=max(f[lson[x]][i]+f[rson[x]][y-1-k]+w[x]) (0&#60;=i&#60;y)
+
+#include&#60;cstdio&#62;
+using namespace std;
+#define maxn 209
+#define maxm 159
+int w[maxn], lson[maxn], rson[maxn], f[maxn][maxm];
+int max(int a, int b){return a&#62;b?a:b;}
+void dfs(int x, int y)
+{
+	if(f[x][y]&#62;0)	return;
+	for(int i=0; i&#60;y; i++)
+	{
+		dfs(lson[x], i);
+		dfs(rson[x], y-1-i);
+		f[x][y]=max(f[x][y], f[lson[x]][i]+f[rson[x]][y-1-i]+w[x]);
+	}
+} 
+int main()
+{
+	int n, m, k, s, ans=0;
+	scanf(&#34;%d%d&#34;, &#38;n, &#38;m);
+	for(int i=1; i&#60;=n; i++)
+	{
+		scanf(&#34;%d%d&#34;, &#38;k, &#38;s);
+		w[i]=s;
+		if(!lson[k])	lson[k]=i;
+		else	rson[k]=i;
+	}
+	int root=lson[0];
+	for(int i=0; i&#60;m; i++)
+	{
+		dfs(lson[root], i);
+		dfs(rson[root], m-1-i);
+		ans=max(ans, f[lson[root]][i]+f[rson[root]][m-1-i]+w[root]);
+	}
+	printf(&#34;%d&#34;, ans);
+	return 0;
+}
+</pre>

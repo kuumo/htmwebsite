@@ -1,0 +1,99 @@
+<pre>
+变化的桥
+<a href="http://oi.nks.edu.cn/showproblem?problem_id=1636">原题链接http://oi.nks.edu.cn/showproblem?problem_id=1636</a>
+
+前题解:
+
+动态图最短路，多维最短路。
+最短路的实质是最短路，最小时间的问题也可以转化为最短路。
+
+给图G,求动态图最短路
+设dis[i][j](0&#60;=i&#60;=n, 0&#60;j&#60;=t)为状态j时到达i的最短路。
+  G[i][x][y]为第i秒x点到y点是否存在路
+if(g[i][x]&#38;&#38;dis[i][j]+g[i][x]&#60;dis[x][(j+1)%v])	dis[x][(j+1)%v]=dis[i][j]+g[i][x];
+解释：从当前位置通过当前状态存在的路更新下一状态的最短路
+
+由于把时间抽象为最短路，要考虑原地不动的情况，所以G[i][k][k]=1，实际意义为停留在当前点需要一秒，动态图最短路意义为要到达下一状态至少距离1
+
+
+
+
+
+#include&#60;cstdio&#62;
+#include&#60;queue&#62;
+using namespace std;
+#define maxn 89
+#define maxT 19
+#define inf 100000000
+int n, m, T, dis[maxn][maxT];
+bool G[maxT][maxn][maxn], mark[maxn][maxT];
+struct node{int p, t;/*point, time*/};
+queue&#60;node&#62;q;
+inline void _read(int&#38; d)
+{
+	char t=getchar();bool f=false;
+	while(t&#60;'0'||t&#62;'9') {if(t=='-') f=true; t=getchar();}
+	for(d=0;t&#60;='9'&#38;&#38;t&#62;='0';t=getchar()) d=d*10+t-'0';
+	if(f) d=-d;
+}
+void mdspfa(int s)
+{
+	int i, j, nt;
+	for(i=0; i&#60;=n; i++)
+	{
+		for(j=0; j&#60;T; j++)
+		{
+			dis[i][j]=inf;
+			G[j][i][i]=1;
+		}
+	}
+	dis[1][0]=0;
+	mark[1][0]=true;
+	node tmp;
+	tmp.p=s;
+	tmp.t=0;
+	q.push(tmp);
+	node x;
+	while(!q.empty())
+	{
+		x=q.front();
+		q.pop();
+		mark[x.p][x.t]=0;
+		for(i=0; i&#60;=n; i++)
+		{
+			nt=(x.t+1)%T;
+			if(G[x.t][x.p][i]&#38;&#38;dis[x.p][x.t]+1&#60;dis[i][nt])
+			{
+				dis[i][nt]=dis[x.p][x.t]+1;
+				if(!mark[i][nt])
+				{
+					mark[i][nt]=true;
+					tmp.p=i;
+					tmp.t=nt;
+					q.push(tmp);
+				}
+			}
+		}
+	}
+}
+int main()
+{
+	int i, j, a, b, minans;
+	scanf(&#34;%d%d%d&#34;, &#38;n, &#38;m, &#38;T);
+	for(i=0; i&#60;T; i++)
+	{
+		for(j=1; j&#60;=m; j++)
+		{
+			_read(a), _read(b);
+			G[i][a][b]=1;
+			G[i][b][a]=1;
+		}
+	}
+	mdspfa(1);
+	minans=inf;
+	for(i=0; i&#60;T; i++){minans=min(minans, dis[0][i]);}
+	if(minans==inf)	printf(&#34;Poor puga!&#34;);
+	else printf(&#34;%d&#34;, minans);
+	return 0;
+}
+</pre>

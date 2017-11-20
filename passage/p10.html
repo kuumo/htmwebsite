@@ -1,0 +1,71 @@
+<pre>
+Pride
+http://codeforces.com/contest/892/problem/C
+
+题意：n个整数组成的数组，一次操作为自选相邻两个数，修改其中一个为两数的最大公约数，问最少需要几次操作使得所有数成为1，如果无法达成，输出-1
+
+断言：
+1.数组中所有数的最大公约数不为1，那么无法达成
+2.只要存在一对相邻数互质，一定能够达成
+
+
+以上是我比赛时的想法
+
+gcd(a[1], a[2], ... a[n])=gcd(gcd(a[1], a[2], ..., a[n-1]), a[n])
+O(n)可求出gcd(a)
+找到最短的连续的子数组gcd(a[L], a[L+1], ..., a[R])==1, ans= R-L+n;
+记忆化O(n^2)求得gcd(a[l..r])
+
+#include&#60;stdio.h&#62;
+#define maxn 2009
+int min(int a, int b)
+{
+	if(a&#60;b)	return a;
+	return b;
+}
+int g[maxn][maxn], a[maxn];
+int gcd(int a, int b)
+{
+	if(b==0)	return a;
+	return gcd(b, a%b);
+}
+int main()
+{
+	int n, ans, t1, i, j;
+	scanf(&#34;%d&#34;, &#38;n);
+	t1=0;
+	for(i=1; i&#60;=n; i++)
+	{
+		scanf(&#34;%d&#34;, &#38;a[i]);
+		g[i][i]=a[i];
+		if(1==a[i])	t1++; 
+	}
+	if(t1)
+	{
+		printf(&#34;%d&#34;, n-t1); 
+	}
+	else
+	{
+		ans=8*n;
+		for(i=1; i&#60;n; i++)
+		{
+			for(j=i+1; j&#60;=n; j++)
+			{
+				g[i][j]=gcd(g[i][j-1], a[j]);
+				if(g[i][j]==1)
+				{
+					ans=min(ans, j-i);
+				}
+			}
+		}
+		if(8*n==ans)
+		{
+			printf(&#34;-1&#34;);
+		}
+		else
+		{
+			printf(&#34;%d&#34;, ans+n-1);
+		}
+	}
+	return 0;
+}</pre>

@@ -1,0 +1,190 @@
+<pre>
+Set的使用笔记
+情绪化地说：完全要被低效的“解题全靠调”给逼疯了，由于对STL一知半解，用起来很低效。现在终于要理清用法了，先从set开始吧。
+
+默认从小到大排序，不可重复
+
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+set&#60;int&#62;a;
+int main()
+{
+	int i;
+	for(i=10; i&#62;-5; i--)
+	{
+		a.insert(i);
+		a.insert(i+1);	//重复insert，验证set不可重复 
+	}
+	set&#60;int&#62;::iterator it;
+	for(it=a.begin(); it!=a.end(); it++)
+	{
+		printf(&#34;%d &#34;, *it);
+	}
+	return 0;
+}
+
+set的比较函数本质是定义&#60;关系，那么等于关系怎么办呢？其实不用担心，会自动通过交换比较元素判断等于关系
+举个例子 ((2&#60;3)||(3&#60;2))==1 但是((2&#60;2)||(2&#60;2))==0, 只要满足((a&#60;b)||(b&#60;a))==0的都视为等于
+
+set元素为非结构体的比较函数的写法
+
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+//自定义比较函数的写法 
+struct MyCmp
+{
+	bool operator()(const int &#38;a, const int &#38;b)
+	{
+		return a&#60;b;//无法理解时如何去重的 
+		//return  a&#60;=b
+		//如果像上面这样写，相当于认为a==b在set中看来时a&#60;b，也就会出现看似重复元素 
+	}	
+};
+set&#60;int, MyCmp&#62;a;
+int main()
+{
+	int i;
+	for(i=10; i&#62;-5; i--)
+	{
+		a.insert(i);
+		a.insert(i+1);
+	}
+	set&#60;int&#62;::iterator it;
+	//set&#60;int, AnyCmp&#62;::iterator it;
+	//试验证明实际的比较情况只与声明时的MyCmp有关，与迭代器的AnyCmp无关。 
+	for(it=a.begin(); it!=a.end(); it++)
+	{
+		printf(&#34;%d &#34;, *it);
+	}
+	return 0;
+}
+
+set元素为结构体的比较函数的写法(其实是写运算符重载，注意比较函数总让我觉得时反着来的)
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+struct node
+{
+	int v;
+	bool operator&#60; (const node &#38;b)const 
+	{
+		return b.v &#60; v;
+		//实际上时从大到小排序了，我还不知道为什么，总觉得运算符重载是反的 
+	}
+};
+set&#60;node&#62;a;
+int main()
+{
+	int i;
+	node t;
+	for(i=10; i&#62;-5; i--)
+	{
+		t.v=i;
+		a.insert(t);
+	}
+	set&#60;node&#62;::iterator it;
+	for(it=a.begin(); it!=a.end(); it++)
+	{
+		printf(&#34;%d &#34;, (*it).v);
+	}
+	
+	return 0;
+} 
+
+lower_bound()和upper_bound()的用法
+lower_bound(i) &#62;=i的第一个元素
+upper_bound(i) &#62;i的第一个元素
+
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+set&#60;int&#62;a;
+int main()
+{
+	int i;
+	for(i=10; i&#62;-5; i--)
+	{
+		a.insert(i);
+	}
+	set&#60;int&#62;::iterator it;
+	for(it=a.begin(); it!=a.end(); it++)
+	{
+		printf(&#34;%d &#34;, *it);
+	}//输出 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10
+	puts(&#34;&#34;);
+	printf(&#34;%d &#34;, *a.lower_bound(3));//输出3
+	printf(&#34;%d &#34;, *a.upper_bound(3));//输出4
+	printf(&#34;%d &#34;, *a.lower_bound(10));//输出10
+	printf(&#34;%d &#34;, *a.upper_bound(10));//输出垃圾值,并且指向a.end()
+	printf(&#34;%d &#34;, *a.lower_boudn(11));//输出垃圾值,并且指向a.end() 
+	return 0;
+}
+特别注意越界问题
+
+下面试验set为空的时候使用lower_bound()和upper_bound()的后果
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+set&#60;int&#62;a;
+int main()
+{
+	int i;
+	i=-10000;
+	while(1)
+	{ 
+		printf(&#34;%d &#34;, *a.lower_bound(i));//指向a.end()
+		printf(&#34;%d &#34;, *a.upper_bound(i));//指向a.end()
+		i++;
+	}//全部输出0
+	return 0;
+}
+试验结果是如果set为空，结果都是0，也算是垃圾值吧
+
+实现查找最后一个小于i的元素的办法
+1.自定义比较函数
+2.取负数
+
+1.自定义比较函数的实现
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+struct MyCmp
+{
+	bool operator()(const int &#38;a, const int &#38;b)
+	{
+		return a&#62;b;
+	}
+};
+set&#60;int, MyCmp&#62;a;
+int main()
+{
+	int i;
+	for(i=10; i&#62;-5; i--)
+	{
+		a.insert(i);
+	}
+	printf(&#34;%d &#34;, *a.lower_bound(3));//输出3 
+	printf(&#34;%d &#34;, *a.upper_bound(3));//输出2 
+	return 0;
+}
+2.取负数的实现
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+using namespace std;
+set&#60;int&#62;a;
+int main()
+{
+	int i;
+	for(i=10; i&#62;-5; i--)
+	{
+		a.insert(-i);
+	}
+	printf(&#34;%d &#34;, -*a.lower_bound(-3));//输出3 
+	printf(&#34;%d &#34;, -*a.upper_bound(-3));//输出2 
+	return 0;
+}
+
+set相关文档
+http://www.cplusplus.com/reference/set/set/</pre>

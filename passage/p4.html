@@ -1,0 +1,26 @@
+斐波拉楔数列(加强版)
+
+根据nodgd的题解
+
+F数列递增，但是答案要求输出后四位，F数列%10000呈现周期性，周期为15000
+
+#include<cstdio>
+using namespace std;
+int f[15000];
+int main()
+{
+	int i, T=15000;
+	f[0]=0;
+	f[1]=1;
+	for(i=2; i<=14999; i++)
+	{
+		f[i]=(f[i-1]+f[i-2])%10000;
+	}
+	while(1)
+	{
+		scanf("%d", &i);
+		if(i==-1)	break;
+		printf("%d\n", f[i%T]);
+	}
+	return 0;
+}

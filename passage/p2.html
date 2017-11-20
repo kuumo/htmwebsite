@@ -1,0 +1,81 @@
+<pre>
+突击小组
+<a href="http://oi.nks.edu.cn/showproblem?problem_id=3088">http://oi.nks.edu.cn/showproblem?problem_id=3088</a>
+差分约束系统
+前缀和处理
+dis[i]表示前i个员工中至少抽出的人数
+不等关系有
+1.0&#60;=dis[i+1]-dis[i]&#60;=1
+2.dis[b[i]]-dis[a[i]-1]&#62;=c[i]
+3.dis[i]-dis[source]&#62;=0
+因为是求最小值，用最长路解决。
+
+pro
+
+#include&#60;cstdio&#62;
+#include&#60;vector&#62;
+#include&#60;queue&#62;
+using namespace std;
+#define inf 1000000000
+#define maxn 50009
+vector&#60;pair&#60;int, int&#62; &#62;edge[maxn];
+queue&#60;int&#62;q;
+int dis[maxn], maxt=0;
+bool mark[maxn];
+inline void _read(int&#38; d)
+{
+	char t=getchar();bool f=false;
+	while(t&#60;'0'||t&#62;'9') {if(t=='-') f=true; t=getchar();}
+	for(d=0;t&#60;='9'&#38;&#38;t&#62;='0';t=getchar()) d=d*10+t-'0';
+	if(f) d=-d;
+}
+void spfa(int s)
+{
+	int x, px, lx, i;
+	for(i=0;i&#60;=maxt;i++)
+		dis[i]=-inf;
+	dis[s]=0;
+	q.push(s);
+	mark[s]=true;
+	while(!q.empty())
+	{
+		x=q.front();
+		mark[x]=false;
+		q.pop();
+		vector&#60;pair&#60;int, int&#62; &#62;::iterator it;
+		for(it=edge[x].begin(); it!=edge[x].end(); it++)
+		{
+			px=it-&#62;first;
+			lx=it-&#62;second;
+			if(dis[x]+lx&#62;dis[px])
+			{
+				dis[px]=dis[x]+lx;
+				if(!mark[px])
+				{
+					mark[px]=true;
+					q.push(px);
+				}
+			}
+		}
+	}
+}
+int main()
+{
+	int n, i, a, b,c;
+	scanf(&#34;%d&#34;, &#38;n);
+	for(i=1; i&#60;=n; i++)
+	{
+		_read(a), _read(b), _read(c);
+		maxt=max(maxt, b);
+		edge[a-1].push_back(make_pair(b, c));
+	}
+	for(i=1; i&#60;=maxt; i++)
+	{
+		edge[i-1].push_back(make_pair(i, 0));
+		edge[i].push_back(make_pair(i-1, -1));
+	}
+	for(i=0; i&#60;=maxt; i++)	edge[0].push_back(make_pair(i, 0));
+	spfa(0);
+	printf(&#34;%d&#34;, dis[maxt]);
+}
+<pre>

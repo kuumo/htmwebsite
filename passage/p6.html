@@ -1,0 +1,65 @@
+<pre>
+Maximum Subsequence
+思路：O(2^n)可以暴力求出n个数的任意组合的和，可以存在大小为&#60;2^n的空间里面
+把n个数分成两组，对两组分别使用上述方法，把结果有序存储。
+那么答案为一下两种情况的其中一种
+1.各组最大的结果的和再取模m
+2.各组选取一个结果相加，和小于m，为了找到这对结果，不妨遍历第二组，对于每个第二组的结果a，在第一组查找最大的一个&#60;m-a的数，最后找到最大的一对数，查找操作用二分查找，O(n/2)
+复杂度O((2^(n/2))*n)
+http://codeforces.com/problemset/problem/888/E
+
+反省：
+1.没自主想出正解，看了题解领悟了好久才懂
+2.没想好就开始写程序，不熟悉STL，解题太依赖调试，最终复习了Set才流畅地写出程序
+
+program:
+#include&#60;cstdio&#62;
+#include&#60;set&#62;
+#define maxn 35
+using namespace std;
+int a[maxn], m;
+struct MyCmp	//从大到小排序 
+{
+	bool operator()(const int &#38;a, const int &#38;b)
+	{
+		return a&#62;b;
+	}
+};
+set&#60;int, MyCmp&#62;s[2];
+void dfs(int cur, int end, int sum, int sn)	//递归找出2^(n/2)种结果 
+{
+	if(cur&#62;end)
+	{
+		s[sn].insert(sum);
+	}
+	else
+	{
+		dfs(cur+1, end, (sum+a[cur])%m, sn);
+		dfs(cur+1, end, sum, sn);
+	}
+}
+int main()
+{
+	int n, i, ans;
+	set&#60;int&#62;::iterator it, flag;
+	scanf(&#34;%d%d&#34;, &#38;n, &#38;m);
+	for(i=0; i&#60;n; i++)
+	{
+		scanf(&#34;%d&#34;, &#38;a[i]);
+	}
+	dfs(0, n/2, 0, 0);
+	dfs(n/2+1, n-1, 0, 1);
+	ans=(*s[0].begin()+*s[1].begin())%m;	//一种可能的答案 
+	for(it=s[1].begin(); it!=s[1].end(); it++)
+	{
+		flag=s[0].upper_bound(m-*it);	//另一种可能的答案 
+		if(flag!=s[0].end())
+		{
+			ans=max(ans, ((*it)+(*flag))%m);
+		}
+	}
+	printf(&#34;%d&#34;, ans);
+	return 0;
+}
+
+启发：这道题怎么说呢？是利用了分治的思想吗？也同时利用的取模的特性。</pre>
